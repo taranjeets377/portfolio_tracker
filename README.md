@@ -1,24 +1,28 @@
-# README
+# Personal Portfolio Tracker
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+A Ruby on Rails application to track personal stock and mutual fund investments.
 
-Things you may want to cover:
+## Features
 
-* Ruby version
+- Track stock purchases and sales
+- Record dividend payouts
+- Handle stock splits
+- Portfolio dashboard
+- Portfolio analytics (CAGR, XIRR)
+- Monthly investment reports
 
-* System dependencies
+## Tech Stack
 
-* Configuration
+- Ruby 3.2.4
+- Rails 7
+- PostgreSQL
+- Sidekiq (future)
+- Redis (future)
 
-* Database creation
+## Setup
 
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+```bash
+bundle install
+rails db:create
+rails db:migrate
+rails s
