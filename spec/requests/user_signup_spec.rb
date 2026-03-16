@@ -4,7 +4,7 @@ RSpec.describe "User Signup", type: :request do
   it "creates a new user" do
     get new_user_registration_path
 
-    expect {
+    expect do
       post user_registration_path, params: {
         user: {
           email: "newuser@example.com",
@@ -12,6 +12,6 @@ RSpec.describe "User Signup", type: :request do
           password_confirmation: "password123"
         }
       }
-    }.to change(User, :count).by(1)
+    end.to change(User, :count).by(1)
   end
 end
