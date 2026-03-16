@@ -77,4 +77,5 @@ group :test do
   gem "webdrivers"
 end
 
+gem "devise"
 gem "sassc-rails", "~> 2.1"
