@@ -1,0 +1,2 @@
+class StockCategory < ApplicationRecord
+end

@@ -1,0 +1,2 @@
+class StockSector < ApplicationRecord
+end
