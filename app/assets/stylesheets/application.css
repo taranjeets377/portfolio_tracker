@@ -2,3 +2,26 @@
  *= require_tree .
  *= require_self
  */
+ .navbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 15px;
+  background: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+}
+
+.nav-left a {
+  margin-right: 15px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+}
+
+.user-email {
+  margin-right: 10px;
+  font-weight: bold;
+}

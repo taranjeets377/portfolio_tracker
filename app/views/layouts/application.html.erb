@@ -14,20 +14,24 @@
       <p style="color: green;"><%= message %></p>
     <% end %>
 
-    <nav>
-      <%= link_to "Dashboard", root_path %> |
-      <%= link_to "Stocks", stocks_path %> |
-      <%= link_to "Transactions", "#" %> |
-      <%= link_to "Reports", "#" %> |
+    <nav class="navbar">
+      <div class="nav-left">
+        <%= link_to "Dashboard", root_path %>
+        <%= link_to "Stocks", stocks_path %>
+        <%= link_to "Transactions", "#" %>
+        <%= link_to "Reports", "#" %>
+      </div>
 
-      <% if user_signed_in? %>
-        Logged in as <strong><%= current_user.email %></strong> |
+      <div class="nav-right">
+        <% if user_signed_in? %>
+          <span class="user-email"><%= current_user.email %></span>
 
-        <%= button_to "Logout",
-            destroy_user_session_path,
-            method: :delete,
-            form: { style: "display:inline" } %>
-      <% end %>
+          <%= button_to "Logout",
+              destroy_user_session_path,
+              method: :delete,
+              form: { style: "display:inline" } %>
+        <% end %>
+      </div>
     </nav>
 
     <hr>
