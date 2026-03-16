@@ -1,5 +1,6 @@
 FactoryBot.define do
   factory :stock_category do
-    name { "MyString" }
+    sequence(:name) { |n| "Category #{n}" }
+    sequence(:code) { |n| "category_#{n}" }
   end
 end

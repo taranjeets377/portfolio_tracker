@@ -4,6 +4,14 @@ class Stock < ApplicationRecord
   belongs_to :stock_sector
   belongs_to :stock_category
 
+  before_validation :normalize_symbol
+
   validates :name, presence: true
-  validates :symbol, presence: true, uniqueness: true
+  validates :symbol, presence: true, uniqueness: { case_sensitive: false }
+
+  private
+
+  def normalize_symbol
+    self.symbol = symbol&.upcase
+  end
 end
