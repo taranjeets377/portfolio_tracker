@@ -1,0 +1,27 @@
+<h1>Stocks</h1>
+
+<%= link_to "Add Stock", new_stock_path %>
+
+<table>
+  <thead>
+    <tr>
+      <th>Symbol</th>
+      <th>Name</th>
+      <th>Sector</th>
+      <th>Category</th>
+      <th></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @stocks.each do |stock| %>
+      <tr>
+        <td><%= stock.symbol %></td>
+        <td><%= stock.name %></td>
+        <td><%= stock.stock_sector.name %></td>
+        <td><%= stock.stock_category.name %></td>
+        <td><%= link_to "View", stock_path(stock) %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

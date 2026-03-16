@@ -1,0 +1,18 @@
+<h1><%= @stock.symbol %></h1>
+
+<p>
+  <strong>Name:</strong>
+  <%= @stock.name %>
+</p>
+
+<p>
+  <strong>Sector:</strong>
+  <%= @stock.stock_sector.name %>
+</p>
+
+<p>
+  <strong>Category:</strong>
+  <%= @stock.stock_category.name %>
+</p>
+
+<%= link_to "Back to Stocks", stocks_path %>

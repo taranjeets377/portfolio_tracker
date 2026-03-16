@@ -1,0 +1,29 @@
+<h1>New Stock</h1>
+
+<%= form_with model: @stock do |form| %>
+
+  <div>
+    <%= form.label :symbol %>
+    <%= form.text_field :symbol %>
+  </div>
+
+  <div>
+    <%= form.label :name %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div>
+    <%= form.label :stock_sector_id, "Sector" %>
+    <%= form.collection_select :stock_sector_id, @sectors, :id, :name %>
+  </div>
+
+  <div>
+    <%= form.label :stock_category_id, "Category" %>
+    <%= form.collection_select :stock_category_id, @categories, :id, :name %>
+  </div>
+
+  <div>
+    <%= form.submit "Create Stock" %>
+  </div>
+
+<% end %>
