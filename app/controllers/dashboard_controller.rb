@@ -1,4 +1,3 @@
-class DashboardController < ApplicationController
-  def index
-  end
+class DashboardController < AuthenticatedController
+  def index; end
 end
