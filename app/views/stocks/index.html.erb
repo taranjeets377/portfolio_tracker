@@ -1,5 +1,12 @@
 <h1>Stocks</h1>
 
+<%= form_with url: stocks_path, method: :get, local: true do %>
+  <%= text_field_tag :query, params[:query], placeholder: "Search stocks..." %>
+  <%= submit_tag "Search" %>
+<% end %>
+
+<br>
+
 <%= link_to "Add Stock", new_stock_path %>
 
 <table>

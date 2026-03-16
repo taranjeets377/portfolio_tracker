@@ -3,7 +3,17 @@
 # Each action will be implemented to handle the corresponding HTTP requests and interact with the Stock model to perform the necessary database operations.
 class StocksController < AuthenticatedController
   def index
-    @stocks = Stock.includes(:stock_sector, :stock_category).order(:symbol)
+    @stocks = Stock.includes(:stock_sector, :stock_category)
+
+    if params[:query].present?
+      query = "%#{params[:query]}%"
+      @stocks = @stocks.where(
+        "LOWER(symbol) LIKE :q OR LOWER(name) LIKE :q",
+        q: query.downcase
+      )
+    end
+
+    @stocks = @stocks.order(:symbol)
   end
 
   def new
