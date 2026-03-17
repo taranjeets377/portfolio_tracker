@@ -9,6 +9,8 @@
         <th>Stock</th>
         <th>Symbol</th>
         <th>Quantity</th>
+        <th>Avg Price</th>
+        <th>Invested Value</th>
       </tr>
     </thead>
 
@@ -18,6 +20,8 @@
           <td><%= stock[:stock_name] %></td>
           <td><%= stock[:symbol] %></td>
           <td><%= stock[:quantity] %></td>
+          <td><%= stock[:avg_price] %></td>
+          <td><%= stock[:invested_value] %></td>
         </tr>
       <% end %>
     </tbody>
