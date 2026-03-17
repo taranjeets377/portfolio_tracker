@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   devise_for :users
 
   resources :stocks
+  resources :stock_transactions, path: "transactions", as: "transactions"
 
   get "dashboard/index"
 end

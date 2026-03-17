@@ -8,8 +8,8 @@ module Transactions
     def initialize(params)
       @params = params
       @user = params[:user]
-      @stock = params[:stock]
-      @quantity = params[:quantity]
+      @stock_id = params[:stock_id]
+      @quantity = params[:quantity].to_i
       @transaction_type = params[:transaction_type].to_s
     end
 
@@ -30,16 +30,16 @@ module Transactions
     def validate_sell_quantity!
       current_quantity = current_stock_quantity
 
-      raise ArgumentError, "Cannot sell more shares than owned" if @quantity > current_quantity
+      raise ArgumentError, "Cannot sell more shares than owned (Available: #{current_quantity})" if @quantity > current_quantity
     end
 
     def current_stock_quantity
       buys = @user.stock_transactions
-                  .where(stock: @stock, transaction_type: :buy)
+                  .where(stock_id: @stock_id, transaction_type: :buy)
                   .sum(:quantity)
 
       sells = @user.stock_transactions
-                   .where(stock: @stock, transaction_type: :sell)
+                   .where(stock_id: @stock_id, transaction_type: :sell)
                    .sum(:quantity)
 
       buys - sells

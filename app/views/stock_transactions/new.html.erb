@@ -1,0 +1,39 @@
+<h1>New Transaction</h1>
+
+<%= form_with model: @transaction, url: transactions_path do |f| %>
+
+  <div>
+    <%= f.label :stock_id %>
+    <%= f.collection_select :stock_id, @stocks, :id, :name %>
+  </div>
+
+  <div>
+    <%= f.label :platform_id %>
+    <%= f.collection_select :platform_id, @platforms, :id, :name %>
+  </div>
+
+  <div>
+    <%= f.label :transaction_type %>
+    <%= f.select :transaction_type, [["Buy", "buy"], ["Sell", "sell"]] %>
+  </div>
+
+  <div>
+    <%= f.label :quantity %>
+    <%= f.number_field :quantity %>
+  </div>
+
+  <div>
+    <%= f.label :price %>
+    <%= f.number_field :price, step: 0.01 %>
+  </div>
+
+  <div>
+    <%= f.label :transaction_date %>
+    <%= f.date_field :transaction_date %>
+  </div>
+
+  <div>
+    <%= f.submit "Create Transaction" %>
+  </div>
+
+<% end %>
