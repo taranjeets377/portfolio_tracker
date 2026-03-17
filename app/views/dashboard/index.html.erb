@@ -8,9 +8,12 @@
       <tr>
         <th>Stock</th>
         <th>Symbol</th>
-        <th>Quantity</th>
+        <th>Qty</th>
         <th>Avg Price</th>
-        <th>Invested Value</th>
+        <th>Current Price</th>
+        <th>Invested</th>
+        <th>Current Value</th>
+        <th>P/L</th>
       </tr>
     </thead>
 
@@ -21,7 +24,21 @@
           <td><%= stock[:symbol] %></td>
           <td><%= stock[:quantity] %></td>
           <td><%= stock[:avg_price] %></td>
+          <td><%= stock[:current_price] %></td>
           <td><%= stock[:invested_value] %></td>
+          <td><%= stock[:current_value] %></td>
+
+          <td>
+            <% if stock[:profit_loss] >= 0 %>
+              <span style="color: green;">
+                +<%= stock[:profit_loss] %>
+              </span>
+            <% else %>
+              <span style="color: red;">
+                <%= stock[:profit_loss] %>
+              </span>
+            <% end %>
+          </td>
         </tr>
       <% end %>
     </tbody>

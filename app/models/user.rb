@@ -37,17 +37,27 @@ class User < ApplicationRecord
         if record.total_buy_qty.to_i.positive?
           record.total_buy_value.to_f / record.total_buy_qty
         else
-          0.0
+          0
         end
 
       invested_value = total_quantity * avg_price
+
+      # 👉 Temporary current price (mock)
+      current_price = avg_price * (1 + rand(-0.1..0.1)) # +/-10%
+
+      current_value = total_quantity * current_price
+
+      profit_loss = current_value - invested_value
 
       {
         stock_name: record.name,
         symbol: record.symbol,
         quantity: total_quantity,
         avg_price: avg_price.round(2),
-        invested_value: invested_value.round(2)
+        invested_value: invested_value.round(2),
+        current_price: current_price.round(2),
+        current_value: current_value.round(2),
+        profit_loss: profit_loss.round(2)
       }
     end
   end
