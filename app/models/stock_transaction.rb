@@ -12,4 +12,16 @@ class StockTransaction < ApplicationRecord
   validates :quantity, presence: true, numericality: { greater_than: 0 }
   validates :price, presence: true, numericality: { greater_than: 0 }
   validates :transaction_date, presence: true
+
+  # ----------------------------
+  # Scopes
+  # ----------------------------
+
+  scope :buys, -> { where(transaction_type: :buy) }
+  scope :sells, -> { where(transaction_type: :sell) }
+
+  scope :recent, -> { order(transaction_date: :desc) }
+
+  scope :for_stock, ->(stock_id) { where(stock_id: stock_id) }
+  scope :for_user, ->(user_id) { where(user_id: user_id) }
 end
