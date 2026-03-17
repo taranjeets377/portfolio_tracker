@@ -1,3 +1,27 @@
-<h1>Portfolio Dashboard</h1>
+<h1>My Portfolio</h1>
 
-<p>Welcome <%= current_user.email %></p>
+<%= link_to "Add Transaction", new_transaction_path %>
+
+<% if @portfolio.any? %>
+  <table>
+    <thead>
+      <tr>
+        <th>Stock</th>
+        <th>Symbol</th>
+        <th>Quantity</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @portfolio.each do |stock| %>
+        <tr>
+          <td><%= stock[:stock_name] %></td>
+          <td><%= stock[:symbol] %></td>
+          <td><%= stock[:quantity] %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p>No investments yet.</p>
+<% end %>
