@@ -1,6 +1,9 @@
 # Displays the user dashboard.
 class DashboardController < AuthenticatedController
   def index
-    @portfolio = Portfolio::SummaryQuery.new(current_user).call
+    query = Portfolio::SummaryQuery.new(current_user)
+
+    @portfolio = query.call
+    @totals = query.totals
   end
 end

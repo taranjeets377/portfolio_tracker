@@ -9,6 +9,20 @@ module Portfolio
       portfolio_holdings.map { |record| build_summary(record) }
     end
 
+    def totals
+      data = call
+
+      total_invested = data.sum { |s| s[:invested_value] }
+      total_current = data.sum { |s| s[:current_value] }
+      total_pl = data.sum { |s| s[:profit_loss] }
+
+      {
+        total_invested: total_invested.round(2),
+        total_current: total_current.round(2),
+        total_profit_loss: total_pl.round(2)
+      }
+    end
+
     private
 
     def build_summary(record)

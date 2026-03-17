@@ -1,5 +1,34 @@
 <h1>My Portfolio</h1>
 
+<div style="display: flex; gap: 20px; margin-bottom: 20px;">
+
+  <div style="padding: 15px; border: 1px solid #ccc; border-radius: 8px;">
+    <h3>Total Invested</h3>
+    <p>₹ <%= @totals[:total_invested] %></p>
+  </div>
+
+  <div style="padding: 15px; border: 1px solid #ccc; border-radius: 8px;">
+    <h3>Current Value</h3>
+    <p>₹ <%= @totals[:total_current] %></p>
+  </div>
+
+  <div style="padding: 15px; border: 1px solid #ccc; border-radius: 8px;">
+    <h3>Total P/L</h3>
+
+    <% if @totals[:total_profit_loss] >= 0 %>
+      <p style="color: green;">
+        +₹ <%= @totals[:total_profit_loss] %>
+      </p>
+    <% else %>
+      <p style="color: red;">
+        ₹ <%= @totals[:total_profit_loss] %>
+      </p>
+    <% end %>
+
+  </div>
+
+</div>
+
 <%= link_to "Add Transaction", new_transaction_path %>
 
 <% if @portfolio.any? %>
