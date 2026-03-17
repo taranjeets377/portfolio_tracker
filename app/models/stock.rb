@@ -9,6 +9,8 @@ class Stock < ApplicationRecord
   validates :name, presence: true
   validates :symbol, presence: true, uniqueness: { case_sensitive: false }
 
+  has_many :stock_transactions, dependent: :restrict_with_exception
+
   private
 
   def normalize_symbol

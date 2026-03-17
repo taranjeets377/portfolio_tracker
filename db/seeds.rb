@@ -29,3 +29,11 @@ end
 StockCategory.find_or_create_by!(code: "small_cap") do |category|
   category.name = "Small Cap"
 end
+
+Platform.find_or_create_by!(code: "groww") do |p|
+  p.name = "Groww"
+end
+
+Platform.find_or_create_by!(code: "zerodha") do |p|
+  p.name = "Zerodha"
+end
