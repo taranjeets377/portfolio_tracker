@@ -1,0 +1,41 @@
+<h1>Dividend History</h1>
+
+<%= link_to "Add Dividend", new_dividend_path %>
+
+<br><br>
+
+<% if @dividends.any? %>
+  <table border="1" cellpadding="8">
+    <thead>
+      <tr>
+        <th>Stock</th>
+        <th>Shares</th>
+        <th>Amount / Share</th>
+        <th>Total</th>
+        <th>Received On</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <% @dividends.each do |div| %>
+        <tr>
+          <td><%= div.stock.name %> (<%= div.stock.symbol %>)</td>
+          <td><%= div.shares %></td>
+          <td>₹ <%= div.amount_per_share %></td>
+          <td>₹ <%= div.total_amount %></td>
+          <td><%= div.received_on %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+
+  <br>
+
+  <h3>
+    Total Dividend Received:
+    ₹ <%= number_to_currency(current_user.total_dividend_received, unit: "") %>
+  </h3>
+
+<% else %>
+  <p>No dividends recorded yet.</p>
+<% end %>

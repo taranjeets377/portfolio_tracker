@@ -1,0 +1,36 @@
+<h2>Record Dividend</h2>
+
+<%= form_with model: @dividend, url: dividends_path do |f| %>
+
+  <div>
+    <%= f.label :stock_id, "Stock" %><br>
+    <%= f.collection_select :stock_id, @stocks, :id, :name %>
+  </div>
+
+  <div>
+    <%= f.label :shares %><br>
+    <p>Shares will be calculated automatically based on record date</p>
+  </div>
+
+  <div>
+    <%= f.label :amount_per_share %><br>
+    <%= f.number_field :amount_per_share, step: 0.01 %>
+  </div>
+
+  <div>
+    <%= label_tag :record_date %><br>
+    <%= date_field_tag :record_date %>
+    </div>
+
+  <div>
+    <%= f.label :received_on %><br>
+    <%= f.date_field :received_on %>
+  </div>
+
+  <br>
+
+  <div>
+    <%= f.submit "Save Dividend" %>
+  </div>
+
+<% end %>

@@ -24,9 +24,15 @@
         ₹ <%= @totals[:total_profit_loss] %>
       </p>
     <% end %>
-
   </div>
 
+  <div style="padding: 15px; border: 1px solid #ccc; border-radius: 8px;">
+    <h3>Total Dividend Received</h3>
+    <p>₹ <%= number_to_currency(current_user.total_dividend_received, unit: "") %></p>
+
+    <br>
+    <%= link_to "View Dividends", dividends_path %>
+  </div>
 </div>
 
 <%= link_to "Add Transaction", new_transaction_path %>

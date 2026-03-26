@@ -10,10 +10,35 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_03_17_080152) do
+ActiveRecord::Schema[7.0].define(version: 2026_03_25_153328) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+
+  create_table "dividend_receipts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "user_id", null: false
+    t.uuid "stock_id", null: false
+    t.integer "shares"
+    t.decimal "amount_per_share"
+    t.decimal "total_amount"
+    t.date "received_on"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.uuid "dividend_id", null: false
+    t.index ["dividend_id"], name: "index_dividend_receipts_on_dividend_id"
+    t.index ["stock_id"], name: "index_dividend_receipts_on_stock_id"
+    t.index ["user_id"], name: "index_dividend_receipts_on_user_id"
+  end
+
+  create_table "dividends", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "stock_id", null: false
+    t.decimal "amount_per_share"
+    t.date "record_date"
+    t.date "payment_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["stock_id"], name: "index_dividends_on_stock_id"
+  end
 
   create_table "platforms", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "name"
@@ -79,6 +104,10 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_17_080152) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
 
+  add_foreign_key "dividend_receipts", "dividends"
+  add_foreign_key "dividend_receipts", "stocks"
+  add_foreign_key "dividend_receipts", "users"
+  add_foreign_key "dividends", "stocks"
   add_foreign_key "stock_transactions", "platforms"
   add_foreign_key "stock_transactions", "stocks"
   add_foreign_key "stock_transactions", "users"

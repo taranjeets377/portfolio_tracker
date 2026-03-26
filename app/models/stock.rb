@@ -10,6 +10,7 @@ class Stock < ApplicationRecord
   validates :symbol, presence: true, uniqueness: { case_sensitive: false }
 
   has_many :stock_transactions, dependent: :restrict_with_exception
+  has_many :dividend_receipts, dependent: :destroy
 
   private
 

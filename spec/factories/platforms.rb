@@ -1,6 +1,6 @@
 FactoryBot.define do
   factory :platform do
-    name { "MyString" }
-    code { "MyString" }
+    sequence(:name) { |n| "Platform #{n}" }
+    sequence(:code) { |n| "platform_#{n}" }
   end
 end
