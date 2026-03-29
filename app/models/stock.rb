@@ -11,6 +11,7 @@ class Stock < ApplicationRecord
 
   has_many :stock_transactions, dependent: :restrict_with_exception
   has_many :dividend_receipts, dependent: :destroy
+  has_many :stock_splits, dependent: :destroy
 
   private
 
