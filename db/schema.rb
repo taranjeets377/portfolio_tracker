@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_03_25_153328) do
+ActiveRecord::Schema[7.0].define(version: 2026_03_29_153745) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
@@ -63,6 +63,17 @@ ActiveRecord::Schema[7.0].define(version: 2026_03_25_153328) do
     t.string "code", null: false
     t.index ["code"], name: "index_stock_sectors_on_code", unique: true
     t.index ["name"], name: "index_stock_sectors_on_name", unique: true
+  end
+
+  create_table "stock_splits", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "stock_id", null: false
+    t.decimal "ratio_from", precision: 10, scale: 2, null: false
+    t.decimal "ratio_to", precision: 10, scale: 2, null: false
+    t.date "ex_date", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["stock_id", "ex_date"], name: "index_stock_splits_on_stock_id_and_ex_date", unique: true
+    t.index ["stock_id"], name: "index_stock_splits_on_stock_id"
   end
 
   create_table "stock_transactions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
