@@ -28,6 +28,20 @@ module Portfolio
     def build_summary(record)
       quantity = calculate_quantity(record)
       avg_price = calculate_avg_price(record)
+
+      stock = Stock.find(record.id) # improve later, currently this does N + 1 queries
+
+      if quantity.positive?
+        adjusted = CorporateActions::StockSplits::AdjustmentService.new(
+          stock: stock,
+          quantity: quantity,
+          avg_price: avg_price
+        ).call
+
+        quantity = adjusted[:quantity]
+        avg_price = adjusted[:avg_price]
+      end
+
       invested_value = calculate_invested_value(quantity, avg_price)
       current_price = mock_current_price(avg_price)
       current_value = calculate_current_value(quantity, current_price)
