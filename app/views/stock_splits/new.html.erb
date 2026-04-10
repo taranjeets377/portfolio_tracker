@@ -1,0 +1,27 @@
+<h1>Add Stock Split - <%= @stock.name %> (<%= @stock.symbol %>)</h1>
+<p><strong>Example:</strong> 1 → 5 means 1 share becomes 5 shares</p>
+
+<%= form_with model: [@stock, @stock_split], local: true do |f| %>
+
+  <div>
+    <%= f.label :ratio_from, "From" %><br>
+    <%= f.number_field :ratio_from, step: 1, min: 1 %>
+  </div>
+
+  <div>
+    <%= f.label :ratio_to, "To" %><br>
+    <%= f.number_field :ratio_to, step: 1, min: 1 %>
+  </div>
+
+  <div>
+    <%= f.label :ex_date %><br>
+    <%= f.date_field :ex_date %>
+  </div>
+
+  <br>
+
+  <div>
+    <%= f.submit "Create Stock Split" %>
+  </div>
+
+<% end %>

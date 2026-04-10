@@ -5,7 +5,7 @@ Rails.application.routes.draw do
   devise_for :users
 
   resources :stocks do
-    resources :stock_splits, only: [:index]
+    resources :stock_splits, only: [:index, :new, :create]
   end
   resources :stock_transactions, path: "transactions", as: "transactions"
   resources :dividend_receipts, path: "dividends", as: "dividends"
