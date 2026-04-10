@@ -1,0 +1,33 @@
+<%#= link_to "Add Stock Split", new_stock_stock_split_path(@stock), class: "btn" %>
+
+<h1>Stock Split History - <%= @stock.name %> (<%= @stock.symbol %>)</h1>
+
+<% if @stock_splits.empty? %>
+  <p>No stock splits recorded for this stock.</p>
+<% else %>
+    <table border="1" cellpadding="8">
+        <thead>
+            <tr>
+            <th>Ex Date</th>
+            <th>Split Ratio</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            <% @stock_splits.each do |split| %>
+            <tr>
+                <td><%= split.ex_date.strftime("%d %b %Y") %></td>
+                <td><strong><%= "#{split.ratio_from}:#{split.ratio_to}" %></strong></td>
+
+                <td>
+                    <% if split.ratio_to > split.ratio_from %>
+                    <span style="color: green;">Split</span>
+                    <% else %>
+                    <span style="color: red;">Reverse Split</span>
+                    <% end %>
+                </td>
+            </tr>
+            <% end %>
+        </tbody>
+    </table>
+<% end %>
