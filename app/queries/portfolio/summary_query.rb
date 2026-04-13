@@ -29,17 +29,32 @@ module Portfolio
       quantity = calculate_quantity(record)
       avg_price = calculate_avg_price(record)
 
-      stock = Stock.find(record.id) # improve later, currently this does N + 1 queries
+      stock = Stock.find(record.id) # TODO: optimize later (N+1)
 
       if quantity.positive?
-        adjusted = CorporateActions::StockSplits::AdjustmentService.new(
+        # ----------------------------
+        # Step 1: Apply Stock Splits
+        # ----------------------------
+        split_adjusted = CorporateActions::StockSplits::AdjustmentService.new(
           stock: stock,
           quantity: quantity,
           avg_price: avg_price
         ).call
 
-        quantity = adjusted[:quantity]
-        avg_price = adjusted[:avg_price]
+        quantity = split_adjusted[:quantity]
+        avg_price = split_adjusted[:avg_price]
+
+        # ----------------------------
+        # Step 2: Apply Bonus Shares
+        # ----------------------------
+        new_quantity = CorporateActions::Bonuses::AdjustmentService.new(
+          stock: stock,
+          quantity: quantity
+        ).call
+
+        avg_price = (quantity.to_d * avg_price.to_d) / new_quantity.to_d if new_quantity.positive?
+
+        quantity = new_quantity
       end
 
       invested_value = calculate_invested_value(quantity, avg_price)

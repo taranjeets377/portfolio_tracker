@@ -104,4 +104,37 @@ RSpec.describe Dividends::Create do
       expect(receipt.total_amount).to eq(50)
     end
   end
+
+  context "with split and bonus before record date" do
+    before do
+      # Split 1:5 → 10 → 50
+      create(:stock_split,
+             stock: stock,
+             ratio_from: 1,
+             ratio_to: 5,
+             ex_date: Date.new(2026, 1, 2))
+
+      # Bonus 1:1 → 50 → 100
+      create(:bonus,
+             stock: stock,
+             ratio_from: 1,
+             ratio_to: 1,
+             ex_date: Date.new(2026, 1, 3))
+    end
+
+    it "applies split and bonus correctly for dividend" do
+      described_class.call(
+        user: user,
+        stock: stock,
+        record_date: Date.new(2026, 1, 5),
+        received_on: Date.new(2026, 1, 10),
+        amount_per_share: 5
+      )
+
+      receipt = DividendReceipt.order(created_at: :desc).first
+
+      expect(receipt.shares).to eq(100)
+      expect(receipt.total_amount).to eq(500)
+    end
+  end
 end

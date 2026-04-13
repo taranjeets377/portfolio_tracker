@@ -10,10 +10,21 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_03_29_153745) do
+ActiveRecord::Schema[7.0].define(version: 2026_04_10_153355) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
+
+  create_table "bonuses", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "stock_id", null: false
+    t.decimal "ratio_from", precision: 10, scale: 2, null: false
+    t.decimal "ratio_to", precision: 10, scale: 2, null: false
+    t.date "ex_date", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["stock_id", "ex_date"], name: "index_bonuses_on_stock_id_and_ex_date", unique: true
+    t.index ["stock_id"], name: "index_bonuses_on_stock_id"
+  end
 
   create_table "dividend_receipts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "user_id", null: false

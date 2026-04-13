@@ -1,0 +1,27 @@
+<h1>Bonus History - <%= @stock.name %> (<%= @stock.symbol %>)</h1>
+
+<%= link_to "Add Bonus", new_stock_bonus_path(@stock) %>
+
+<% if @bonuses.empty? %>
+  <p>No bonuses recorded for this stock.</p>
+<% else %>
+
+<table border="1" cellpadding="8">
+  <thead>
+    <tr>
+      <th>Ex Date</th>
+      <th>Bonus Ratio</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @bonuses.each do |bonus| %>
+      <tr>
+        <td><%= bonus.ex_date.strftime("%d %b %Y") %></td>
+        <td><strong><%= "#{bonus.ratio_from}:#{bonus.ratio_to}" %></strong></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<% end %>

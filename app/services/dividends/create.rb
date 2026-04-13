@@ -26,18 +26,26 @@ module Dividends
     private
 
     def calculate_shares!
-      base_shares = @user.shares_on(@stock, @record_date)
+      shares = @user.shares_on(@stock, @record_date)
 
-      adjusted_shares = CorporateActions::StockSplits::AdjustmentService.new(
+      # Step 1: Apply splits
+      shares = CorporateActions::StockSplits::AdjustmentService.new(
         stock: @stock,
-        quantity: base_shares,
-        avg_price: 0, # not needed for dividends
+        quantity: shares,
+        avg_price: 0,
         as_of: @record_date
       ).call[:quantity]
 
-      raise ArgumentError, "No shares held on record date" if adjusted_shares <= 0
+      # Step 2: Apply bonuses
+      shares = CorporateActions::Bonuses::AdjustmentService.new(
+        stock: @stock,
+        quantity: shares,
+        as_of: @record_date
+      ).call
 
-      adjusted_shares
+      raise ArgumentError, "No shares held on record date" if shares <= 0
+
+      shares
     end
 
     def create_dividend!

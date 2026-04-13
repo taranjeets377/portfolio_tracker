@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+  get 'bonuses/index'
+  get 'bonuses/new'
+  get 'bonuses/create'
   get 'stock_splits/index'
   root "dashboard#index"
 
@@ -6,6 +9,7 @@ Rails.application.routes.draw do
 
   resources :stocks do
     resources :stock_splits, only: [:index, :new, :create]
+    resources :bonuses, only: [:index, :new, :create]
   end
   resources :stock_transactions, path: "transactions", as: "transactions"
   resources :dividend_receipts, path: "dividends", as: "dividends"
