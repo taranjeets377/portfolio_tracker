@@ -81,3 +81,12 @@
 <% else %>
   <p>No investments yet.</p>
 <% end %>
+
+<h2>Monthly Investment Chart</h2>
+
+<canvas
+  width="230"
+  height="60"
+  data-controller="monthly-investment-chart"
+  data-monthly-investment-chart-data-value='<%= @monthly_investments.to_json %>'>
+</canvas>
