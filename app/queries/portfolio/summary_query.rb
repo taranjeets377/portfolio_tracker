@@ -6,7 +6,12 @@ module Portfolio
     end
 
     def call
-      portfolio_holdings.map { |record| build_summary(record) }
+      @summary ||= begin
+        records = portfolio_holdings.to_a
+        stocks_by_id = Stock.where(id: records.map(&:id)).index_by(&:id)
+
+        records.map { |record| build_summary(record, stocks_by_id.fetch(record.id)) }
+      end
     end
 
     def totals
@@ -25,11 +30,9 @@ module Portfolio
 
     private
 
-    def build_summary(record)
+    def build_summary(record, stock)
       quantity = calculate_quantity(record)
       avg_price = calculate_avg_price(record)
-
-      stock = Stock.find(record.id) # TODO: optimize later (N+1)
 
       if quantity.positive?
         # ----------------------------
