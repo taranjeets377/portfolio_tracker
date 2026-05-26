@@ -3,11 +3,12 @@ module CorporateActions
     # This service adjusts the quantity and average price of a stock based on any applicable stock splits that have occurred up to a specified date.
     # It takes into account the ratio of each split and applies it sequentially to calculate the final adjusted quantity and average price.
     class AdjustmentService
-      def initialize(stock:, quantity:, avg_price:, as_of: Date.today)
+      def initialize(stock:, quantity:, avg_price:, as_of: Date.current, splits: nil)
         @stock = stock
         @quantity = quantity
         @avg_price = avg_price
         @as_of = as_of
+        @splits = splits
       end
 
       def call
@@ -20,10 +21,12 @@ module CorporateActions
 
       private
 
-      attr_reader :stock, :as_of
+      attr_reader :stock, :as_of, :splits
       attr_accessor :quantity, :avg_price
 
       def applicable_splits
+        return splits unless splits.nil?
+
         stock.stock_splits
              .where("ex_date <= ?", as_of)
              .order(:ex_date)

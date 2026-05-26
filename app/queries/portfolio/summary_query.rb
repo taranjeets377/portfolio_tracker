@@ -8,9 +8,27 @@ module Portfolio
     def call
       @summary ||= begin
         records = portfolio_holdings.to_a
-        stocks_by_id = Stock.where(id: records.map(&:id)).index_by(&:id)
+        stock_ids = records.map(&:stock_id)
+        as_of = Date.current
+        stocks_by_id = Stock.where(id: stock_ids).index_by(&:id)
+        splits_by_stock_id = StockSplit.where(stock_id: stock_ids)
+                                        .where("ex_date <= ?", as_of)
+                                        .order(:ex_date)
+                                        .group_by(&:stock_id)
+        bonuses_by_stock_id = Bonus.where(stock_id: stock_ids)
+                                    .where("ex_date <= ?", as_of)
+                                    .order(:ex_date)
+                                    .group_by(&:stock_id)
 
-        records.map { |record| build_summary(record, stocks_by_id.fetch(record.id)) }
+        records.map do |record|
+          build_summary(
+            record,
+            stocks_by_id.fetch(record.stock_id),
+            splits_by_stock_id[record.stock_id] || [],
+            bonuses_by_stock_id[record.stock_id] || [],
+            as_of
+          )
+        end
       end
     end
 
@@ -30,7 +48,7 @@ module Portfolio
 
     private
 
-    def build_summary(record, stock)
+    def build_summary(record, stock, splits, bonuses, as_of)
       quantity = calculate_quantity(record)
       avg_price = calculate_avg_price(record)
 
@@ -41,7 +59,9 @@ module Portfolio
         split_adjusted = CorporateActions::StockSplits::AdjustmentService.new(
           stock: stock,
           quantity: quantity,
-          avg_price: avg_price
+          avg_price: avg_price,
+          as_of: as_of,
+          splits: splits
         ).call
 
         quantity = split_adjusted[:quantity]
@@ -52,7 +72,9 @@ module Portfolio
         # ----------------------------
         new_quantity = CorporateActions::Bonuses::AdjustmentService.new(
           stock: stock,
-          quantity: quantity
+          quantity: quantity,
+          as_of: as_of,
+          bonuses: bonuses
         ).call
 
         avg_price = (quantity.to_d * avg_price.to_d) / new_quantity.to_d if new_quantity.positive?
@@ -116,7 +138,7 @@ module Portfolio
            .joins(:stock)
            .group("stocks.id", "stocks.name", "stocks.symbol")
            .select(
-             "stocks.id,
+             "stocks.id AS stock_id,
               stocks.name,
               stocks.symbol,
 

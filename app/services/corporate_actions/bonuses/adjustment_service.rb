@@ -3,10 +3,11 @@ module CorporateActions
     # This service is responsible for adjusting the quantity of shares based on the bonuses that have occurred for a given stock.
     # It takes into account the ex-date of the bonuses to ensure that only applicable bonuses are applied.
     class AdjustmentService
-      def initialize(stock:, quantity:, as_of: Date.today)
+      def initialize(stock:, quantity:, as_of: Date.current, bonuses: nil)
         @stock = stock
         @quantity = quantity
         @as_of = as_of
+        @bonuses = bonuses
       end
 
       def call
@@ -19,10 +20,12 @@ module CorporateActions
 
       private
 
-      attr_reader :stock, :as_of
+      attr_reader :stock, :as_of, :bonuses
       attr_accessor :quantity
 
       def applicable_bonuses
+        return bonuses unless bonuses.nil?
+
         stock.bonuses
              .where("ex_date <= ?", as_of)
              .order(:ex_date)
