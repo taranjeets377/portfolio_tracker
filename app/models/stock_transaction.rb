@@ -6,6 +6,8 @@ class StockTransaction < ApplicationRecord
   belongs_to :stock
   belongs_to :platform
 
+  after_commit :invalidate_portfolio_summary_cache, on: %i[create update destroy]
+
   enum transaction_type: { buy: 0, sell: 1 }
 
   validates :transaction_type, presence: true
@@ -24,4 +26,10 @@ class StockTransaction < ApplicationRecord
 
   scope :for_stock, ->(stock_id) { where(stock_id: stock_id) }
   scope :for_user, ->(user_id) { where(user_id: user_id) }
+
+  private
+
+  def invalidate_portfolio_summary_cache
+    Portfolio::SummaryCache.invalidate_for_user_id(user_id)
+  end
 end

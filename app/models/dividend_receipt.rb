@@ -4,6 +4,8 @@ class DividendReceipt < ApplicationRecord
   belongs_to :stock
   belongs_to :dividend
 
+  after_commit :invalidate_portfolio_summary_cache, on: %i[create update destroy]
+
   validates :shares, presence: true, numericality: { greater_than: 0 }
   validates :amount_per_share, presence: true, numericality: { greater_than: 0 }
   validates :received_on, presence: true
@@ -14,5 +16,11 @@ class DividendReceipt < ApplicationRecord
     return if shares.blank? || amount_per_share.blank?
 
     self.total_amount = shares * amount_per_share
+  end
+
+  private
+
+  def invalidate_portfolio_summary_cache
+    Portfolio::SummaryCache.invalidate_for_user_id(user_id)
   end
 end

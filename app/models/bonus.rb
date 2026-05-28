@@ -3,6 +3,8 @@
 class Bonus < ApplicationRecord
   belongs_to :stock
 
+  after_commit :invalidate_portfolio_summary_cache, on: %i[create update destroy]
+
   validates :ratio_from, presence: true, numericality: { greater_than: 0 }
   validates :ratio_to, presence: true, numericality: { greater_than: 0 }
   validates :ex_date, presence: true
@@ -16,5 +18,9 @@ class Bonus < ApplicationRecord
 
     # Allow 1:1 bonus
     errors.add(:base, "Invalid bonus ratio") if ratio_from == ratio_to && ratio_from != 1
+  end
+
+  def invalidate_portfolio_summary_cache
+    Portfolio::SummaryCache.invalidate_all
   end
 end

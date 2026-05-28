@@ -1,35 +1,14 @@
 module Portfolio
   # Query object for fetching portfolio summary data for a user.
   class SummaryQuery
+    CACHE_KEY_PREFIX = Portfolio::SummaryCache::PREFIX
+
     def initialize(user)
       @user = user
     end
 
     def call
-      @summary ||= begin
-        records = portfolio_holdings.to_a
-        stock_ids = records.map(&:stock_id)
-        as_of = Date.current
-        stocks_by_id = Stock.where(id: stock_ids).index_by(&:id)
-        splits_by_stock_id = StockSplit.where(stock_id: stock_ids)
-                                        .where("ex_date <= ?", as_of)
-                                        .order(:ex_date)
-                                        .group_by(&:stock_id)
-        bonuses_by_stock_id = Bonus.where(stock_id: stock_ids)
-                                    .where("ex_date <= ?", as_of)
-                                    .order(:ex_date)
-                                    .group_by(&:stock_id)
-
-        records.map do |record|
-          build_summary(
-            record,
-            stocks_by_id.fetch(record.stock_id),
-            splits_by_stock_id[record.stock_id] || [],
-            bonuses_by_stock_id[record.stock_id] || [],
-            as_of
-          )
-        end
-      end
+      @summary ||= Rails.cache.fetch(cache_key) { build_summaries }
     end
 
     def totals
@@ -47,6 +26,43 @@ module Portfolio
     end
 
     private
+
+    def cache_key
+      latest_transaction_at = @user.stock_transactions.maximum(:updated_at)
+      transaction_version = latest_transaction_at&.utc&.iso8601(6) || "none"
+
+      [
+        CACHE_KEY_PREFIX,
+        "users/#{@user.id}",
+        "transactions/#{transaction_version}",
+        "as_of/#{Date.current.iso8601}"
+      ].join("/")
+    end
+
+    def build_summaries
+      records = portfolio_holdings.to_a
+      stock_ids = records.map(&:stock_id)
+      as_of = Date.current
+      stocks_by_id = Stock.where(id: stock_ids).index_by(&:id)
+      splits_by_stock_id = StockSplit.where(stock_id: stock_ids)
+                                      .where("ex_date <= ?", as_of)
+                                      .order(:ex_date)
+                                      .group_by(&:stock_id)
+      bonuses_by_stock_id = Bonus.where(stock_id: stock_ids)
+                                  .where("ex_date <= ?", as_of)
+                                  .order(:ex_date)
+                                  .group_by(&:stock_id)
+
+      records.map do |record|
+        build_summary(
+          record,
+          stocks_by_id.fetch(record.stock_id),
+          splits_by_stock_id[record.stock_id] || [],
+          bonuses_by_stock_id[record.stock_id] || [],
+          as_of
+        )
+      end
+    end
 
     def build_summary(record, stock, splits, bonuses, as_of)
       quantity = calculate_quantity(record)

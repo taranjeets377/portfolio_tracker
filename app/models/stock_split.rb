@@ -3,6 +3,8 @@
 class StockSplit < ApplicationRecord
   belongs_to :stock
 
+  after_commit :invalidate_portfolio_summary_cache, on: %i[create update destroy]
+
   validates :ratio_from, presence: true, numericality: { greater_than: 0 }
   validates :ratio_to, presence: true, numericality: { greater_than: 0 }
   validates :ex_date, presence: true
@@ -15,5 +17,9 @@ class StockSplit < ApplicationRecord
     return if ratio_from.nil? || ratio_to.nil?
 
     errors.add(:base, "Split ratio must change (e.g., 1:5, 2:1)") if ratio_from == ratio_to
+  end
+
+  def invalidate_portfolio_summary_cache
+    Portfolio::SummaryCache.invalidate_all
   end
 end
