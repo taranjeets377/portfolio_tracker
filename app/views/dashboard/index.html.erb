@@ -1,92 +1,234 @@
-<h1>My Portfolio</h1>
+<main class="dashboard">
+  <div class="dashboard-header">
+    <div>
+      <h1 class="dashboard-title">My Portfolio</h1>
+      <p class="dashboard-subtitle">Track your investments and portfolio performance</p>
+    </div>
 
-<div style="display: flex; gap: 20px; margin-bottom: 20px;">
-
-  <div style="padding: 15px; border: 1px solid #ccc; border-radius: 8px;">
-    <h3>Total Invested</h3>
-    <p>₹ <%= @totals[:total_invested] %></p>
+    <%= link_to "Add Transaction", new_transaction_path, class: "dashboard-action" %>
   </div>
 
-  <div style="padding: 15px; border: 1px solid #ccc; border-radius: 8px;">
-    <h3>Current Value</h3>
-    <p>₹ <%= @totals[:total_current] %></p>
-  </div>
+  <section class="stats-grid" aria-label="Portfolio summary">
+    <article class="stat-card">
+      <div class="stat-card__topline">
+        <span class="metric-icon metric-icon--invested" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 3v18M6 7.5h9a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h9" />
+          </svg>
+        </span>
+        <h3 class="stat-card__label">Total Invested</h3>
+      </div>
+      <p class="stat-card__value">₹ <%= @totals[:total_invested] %></p>
+      <p class="trend-badge trend-badge--neutral">Capital deployed</p>
+    </article>
 
-  <div style="padding: 15px; border: 1px solid #ccc; border-radius: 8px;">
-    <h3>Total P/L</h3>
+    <article class="stat-card stat-card--primary">
+      <div class="stat-card__topline">
+        <span class="metric-icon metric-icon--value" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 19V5M4 19h16M8 15l3-3 3 2 5-6" />
+          </svg>
+        </span>
+        <h3 class="stat-card__label">Current Value</h3>
+      </div>
+      <p class="stat-card__value">₹ <%= @totals[:total_current] %></p>
+      <p class="trend-badge trend-badge--neutral">Portfolio value</p>
+    </article>
 
-    <% if @totals[:total_profit_loss] >= 0 %>
-      <p style="color: green;">
-        +₹ <%= @totals[:total_profit_loss] %>
-      </p>
-    <% else %>
-      <p style="color: red;">
-        ₹ <%= @totals[:total_profit_loss] %>
-      </p>
-    <% end %>
-  </div>
+    <article class="stat-card stat-card--accent">
+      <div class="stat-card__topline">
+        <span class="metric-icon metric-icon--returns" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M5 17l5-5 4 4 5-8M15 8h4v4" />
+          </svg>
+        </span>
+        <h3 class="stat-card__label">Total Profit/Loss</h3>
+      </div>
 
-  <div style="padding: 15px; border: 1px solid #ccc; border-radius: 8px;">
-    <h3>Total Dividend Received</h3>
-    <p>₹ <%= number_to_currency(current_user.total_dividend_received, unit: "") %></p>
-
-    <br>
-    <%= link_to "View Dividends", dividends_path %>
-  </div>
-</div>
-
-<%= link_to "Add Transaction", new_transaction_path %>
-
-<% if @portfolio.any? %>
-  <table>
-    <thead>
-      <tr>
-        <th>Stock</th>
-        <th>Symbol</th>
-        <th>Qty</th>
-        <th>Avg Price</th>
-        <th>Current Price</th>
-        <th>Invested</th>
-        <th>Current Value</th>
-        <th>P/L</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      <% @portfolio.each do |stock| %>
-        <tr>
-          <td><%= stock[:stock_name] %></td>
-          <td><%= stock[:symbol] %></td>
-          <td><%= stock[:quantity] %></td>
-          <td><%= stock[:avg_price] %></td>
-          <td><%= stock[:current_price] %></td>
-          <td><%= stock[:invested_value] %></td>
-          <td><%= stock[:current_value] %></td>
-
-          <td>
-            <% if stock[:profit_loss] >= 0 %>
-              <span style="color: green;">
-                +<%= stock[:profit_loss] %>
-              </span>
-            <% else %>
-              <span style="color: red;">
-                <%= stock[:profit_loss] %>
-              </span>
-            <% end %>
-          </td>
-        </tr>
+      <% if @totals[:total_profit_loss] >= 0 %>
+        <p class="stat-card__value amount-positive">
+          +₹ <%= @totals[:total_profit_loss] %>
+        </p>
+        <p class="trend-badge trend-badge--positive">Portfolio gain</p>
+      <% else %>
+        <p class="stat-card__value amount-negative">
+          ₹ <%= @totals[:total_profit_loss] %>
+        </p>
+        <p class="trend-badge trend-badge--negative">Portfolio drawdown</p>
       <% end %>
-    </tbody>
-  </table>
-<% else %>
-  <p>No investments yet.</p>
-<% end %>
+    </article>
 
-<h2>Monthly Investment Chart</h2>
+    <article class="stat-card">
+      <div class="stat-card__topline">
+        <span class="metric-icon metric-icon--dividend" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 7h16M6 7v12h12V7M9 11h6M9 15h4M8 4h8v3H8z" />
+          </svg>
+        </span>
+        <h3 class="stat-card__label">Total Dividend Received</h3>
+      </div>
+      <p class="stat-card__value">₹ <%= number_to_currency(current_user.total_dividend_received, unit: "") %></p>
+      <p class="trend-badge trend-badge--positive">Income received</p>
 
-<canvas
-  width="230"
-  height="60"
-  data-controller="monthly-investment-chart"
-  data-monthly-investment-chart-data-value='<%= @monthly_investments.to_json %>'>
-</canvas>
+      <%= link_to "View Dividends", dividends_path, class: "stat-card__link" %>
+    </article>
+  </section>
+
+  <section class="analytics-grid" aria-label="Portfolio analytics">
+    <article class="chart-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 19V5M4 19h16M8 15l3-4 4 3 4-7" />
+            </svg>
+          </span>
+          Monthly Investment Chart
+        </h2>
+      </div>
+
+      <div class="chart-container">
+        <canvas
+          width="230"
+          height="60"
+          data-controller="monthly-investment-chart"
+          data-monthly-investment-chart-data-value='<%= @monthly_investments.to_json %>'>
+        </canvas>
+      </div>
+    </article>
+
+    <aside class="insights-card">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M5 12h4v7H5zM10 5h4v14h-4zM15 9h4v10h-4z" />
+            </svg>
+          </span>
+          Portfolio Insights
+        </h2>
+      </div>
+
+      <%
+        profitable_holdings = @portfolio.count { |stock| stock[:profit_loss].to_f.positive? }
+        losing_holdings = @portfolio.count { |stock| stock[:profit_loss].to_f.negative? }
+        largest_position = @portfolio.max_by { |stock| stock[:current_value].to_f }
+        best_performer = @portfolio.max_by { |stock| stock[:profit_loss].to_f }
+        total_current_value = @totals[:total_current].to_f
+        largest_position_weight = largest_position && total_current_value.positive? ? ((largest_position[:current_value].to_f / total_current_value) * 100) : 0
+        average_position_value = @portfolio.any? ? (total_current_value / @portfolio.size) : 0
+      %>
+
+      <dl class="insights-list">
+        <div class="insight-item">
+          <dt>
+            <span>Position mix</span>
+            <small>Profitable vs underperforming holdings</small>
+          </dt>
+          <dd><%= profitable_holdings %> / <%= losing_holdings %></dd>
+        </div>
+
+        <div class="insight-item">
+          <dt>
+            <span>Largest allocation</span>
+            <small><%= largest_position ? largest_position[:symbol] : "No active holdings" %></small>
+          </dt>
+          <dd><%= number_to_percentage(largest_position_weight, precision: 1) %></dd>
+        </div>
+
+        <div class="insight-item">
+          <dt>
+            <span>Best performer</span>
+            <small><%= best_performer ? best_performer[:stock_name] : "No active holdings" %></small>
+          </dt>
+          <% if best_performer && best_performer[:profit_loss].to_f >= 0 %>
+            <dd class="amount-positive">+₹ <%= best_performer[:profit_loss] %></dd>
+          <% elsif best_performer %>
+            <dd class="amount-negative">₹ <%= best_performer[:profit_loss] %></dd>
+          <% else %>
+            <dd>--</dd>
+          <% end %>
+        </div>
+
+        <div class="insight-item">
+          <dt>
+            <span>Avg position size</span>
+            <small>Mean current value per holding</small>
+          </dt>
+          <dd>₹ <%= number_to_currency(average_position_value, unit: "") %></dd>
+        </div>
+
+        <div class="insight-item">
+          <dt>
+            <span>Active holdings</span>
+            <small>Companies currently in portfolio</small>
+          </dt>
+          <dd><%= @portfolio.size %></dd>
+        </div>
+      </dl>
+    </aside>
+  </section>
+
+  <section class="dashboard-section">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="section-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 6h16M4 12h16M4 18h16M8 4v16M16 4v16" />
+          </svg>
+        </span>
+        Top Holdings
+      </h2>
+    </div>
+
+    <% if @portfolio.any? %>
+      <%
+        top_holdings = @portfolio.sort_by { |stock| -stock[:current_value].to_f }.first(5)
+        portfolio_current_value = @totals[:total_current].to_f
+      %>
+
+      <div class="table-container">
+        <table class="holdings-table">
+          <thead>
+            <tr>
+              <th>Stock</th>
+              <th>Current Value</th>
+              <th>Portfolio Weight</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% top_holdings.each do |stock| %>
+              <% portfolio_weight = portfolio_current_value.positive? ? ((stock[:current_value].to_f / portfolio_current_value) * 100) : 0 %>
+
+              <tr>
+                <td>
+                  <div class="stock-cell">
+                    <span class="stock-avatar" aria-hidden="true"><%= stock[:symbol].to_s.first %></span>
+                    <div>
+                      <span class="stock-name"><%= stock[:stock_name] %></span>
+                      <span class="stock-symbol"><%= stock[:symbol] %></span>
+                    </div>
+                  </div>
+                </td>
+                <td class="holding-value">₹ <%= stock[:current_value] %></td>
+                <td>
+                  <div class="weight-cell">
+                    <span class="weight-value"><%= number_to_percentage(portfolio_weight, precision: 1) %></span>
+                    <progress class="weight-progress" value="<%= [portfolio_weight, 100].min %>" max="100" aria-label="<%= stock[:symbol] %> portfolio weight"></progress>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="section-footer">
+        <%= link_to "View All Holdings", stocks_path, class: "secondary-action" %>
+      </div>
+    <% else %>
+      <p class="empty-state">No investments yet.</p>
+    <% end %>
+  </section>
+</main>

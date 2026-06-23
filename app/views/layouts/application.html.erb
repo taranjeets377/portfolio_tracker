@@ -12,31 +12,41 @@
 
   <body>
     <% flash.each do |type, message| %>
-      <p style="color: green;"><%= message %></p>
+      <p class="flash-message"><%= message %></p>
     <% end %>
 
     <nav class="navbar">
-      <div class="nav-left">
-        <%= link_to "Dashboard", root_path %>
-        <%= link_to "Stocks", stocks_path %>
-        <%= link_to "Transactions", transactions_path %>
-        <%= link_to "Reports", "#" %>
-        <%= link_to "Dividends", dividends_path %>
-      </div>
+      <div class="navbar__inner">
+        <div class="navbar__brand">
+          <%= link_to safe_join([
+              content_tag(:span, "PT", class: "brand-mark"),
+              content_tag(:span, "Portfolio Tracker", class: "brand-name")
+            ]),
+            root_path,
+            class: "brand-link" %>
+        </div>
 
-      <div class="nav-right">
-        <% if user_signed_in? %>
-          <span class="user-email"><%= current_user.email %></span>
+        <div class="nav-left">
+          <%= link_to "Dashboard", root_path %>
+          <%= link_to "Stocks", stocks_path %>
+          <%= link_to "Transactions", transactions_path %>
+          <%= link_to "Reports", "#" %>
+          <%= link_to "Dividends", dividends_path %>
+        </div>
 
-          <%= button_to "Logout",
-              destroy_user_session_path,
-              method: :delete,
-              form: { style: "display:inline" } %>
-        <% end %>
+        <div class="nav-right">
+          <% if user_signed_in? %>
+            <span class="user-email"><%= current_user.email %></span>
+
+            <%= button_to "Logout",
+                destroy_user_session_path,
+                method: :delete,
+                form: { class: "logout-form" },
+                class: "logout-button" %>
+          <% end %>
+        </div>
       </div>
     </nav>
-
-    <hr>
 
     <%= yield %>
   </body>
