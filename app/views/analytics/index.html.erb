@@ -67,7 +67,7 @@
   </section>
 
   <section class="analytics-sections-grid" aria-label="Future analytics modules">
-    <article class="dashboard-section analytics-panel">
+    <article class="chart-card analytics-panel">
       <div class="section-header">
         <h2 class="section-title">
           <span class="section-icon" aria-hidden="true">
@@ -78,7 +78,18 @@
           Portfolio Allocation
         </h2>
       </div>
-      <p class="analytics-placeholder">Allocation chart will be added in PPT-101</p>
+      <% if @analytics[:allocation].present? %>
+        <div class="chart-container">
+          <canvas
+            width="320"
+            height="320"
+            data-controller="portfolio-allocation-chart"
+            data-portfolio-allocation-chart-data-value='<%= @analytics[:allocation].to_json %>'>
+          </canvas>
+        </div>
+      <% else %>
+        <p class="analytics-placeholder">No allocation data available.</p>
+      <% end %>
     </article>
 
     <article class="dashboard-section analytics-panel">
