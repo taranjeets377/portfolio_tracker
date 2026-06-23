@@ -21,7 +21,6 @@ RSpec.describe Portfolio::AnalyticsService do
     it "returns placeholders for analytics that are not implemented yet" do
       result = described_class.new(user).call
 
-      expect(result[:allocation]).to eq({})
       expect(result[:dividend_yield]).to be_nil
       expect(result[:cagr]).to be_nil
       expect(result[:xirr]).to be_nil
@@ -33,7 +32,7 @@ RSpec.describe Portfolio::AnalyticsService do
         total_current: 1_125.0,
         total_profit_loss: 125.0
       }
-      summary_query = instance_double(Portfolio::SummaryQuery, totals: totals)
+      summary_query = instance_double(Portfolio::SummaryQuery, totals: totals, call: [])
 
       expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
 
@@ -42,6 +41,54 @@ RSpec.describe Portfolio::AnalyticsService do
       expect(result[:total_invested]).to eq(1_000.0)
       expect(result[:current_value]).to eq(1_125.0)
       expect(result[:profit_loss]).to eq(125.0)
+    end
+
+    it "returns an empty allocation when there is no current portfolio value" do
+      result = described_class.new(user).call
+
+      expect(result[:allocation]).to eq([])
+    end
+
+    it "calculates allocation from portfolio summary current values" do
+      totals = {
+        total_invested: 1_000.0,
+        total_current: 1_500.0,
+        total_profit_loss: 500.0
+      }
+      holdings = [
+        {
+          stock_name: "Bharat Electronics",
+          symbol: "BEL",
+          current_value: 1_000.0
+        },
+        {
+          stock_name: "Tata Consultancy Services",
+          symbol: "TCS",
+          current_value: 500.0
+        }
+      ]
+      summary_query = instance_double(Portfolio::SummaryQuery, totals: totals, call: holdings)
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:allocation]).to eq(
+        [
+          {
+            stock_name: "Bharat Electronics",
+            symbol: "BEL",
+            current_value: 1_000.0,
+            allocation_percentage: 66.67
+          },
+          {
+            stock_name: "Tata Consultancy Services",
+            symbol: "TCS",
+            current_value: 500.0,
+            allocation_percentage: 33.33
+          }
+        ]
+      )
     end
   end
 end
