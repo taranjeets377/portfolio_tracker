@@ -49,7 +49,8 @@ body {
 }
 
 .flash-message {
-  width: min(100% - 48px, 1700px);
+  width: calc(100% - 48px);
+  max-width: 1700px;
   margin: var(--space-4) auto 0;
   padding: var(--space-3) var(--space-5);
   border: 1px solid rgba(125, 216, 127, 0.32);
@@ -73,7 +74,8 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: var(--space-6);
-  width: min(100% - 48px, 1700px);
+  width: calc(100% - 48px);
+  max-width: 1700px;
   margin: 0 auto;
   padding: var(--space-4) 0;
 }
@@ -161,7 +163,8 @@ body {
 }
 
 .dashboard {
-  width: min(100% - 48px, 1700px);
+  width: calc(100% - 48px);
+  max-width: 1700px;
   margin: 0 auto;
   padding: var(--space-8) 0 48px;
 }
@@ -710,6 +713,30 @@ body {
   margin-top: var(--space-6);
 }
 
+.analytics-page .dashboard-header {
+  margin-bottom: var(--space-6);
+}
+
+.analytics-sections-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-6);
+}
+
+.analytics-panel {
+  min-height: 220px;
+  margin-top: 0;
+}
+
+.analytics-placeholder {
+  margin: 0;
+  padding: var(--space-6);
+  color: var(--color-muted);
+  font-size: 16px;
+  font-weight: 750;
+}
+
 @media (max-width: 900px) {
   .navbar__inner {
     align-items: flex-start;
@@ -727,6 +754,10 @@ body {
   }
 
   .analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-sections-grid {
     grid-template-columns: 1fr;
   }
 
@@ -757,7 +788,8 @@ body {
   }
 
   .dashboard {
-    width: min(100% - 28px, 1700px);
+    width: calc(100% - 28px);
+    max-width: 1700px;
     padding: var(--space-6) 0 40px;
   }
 

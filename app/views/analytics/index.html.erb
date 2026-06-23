@@ -1,0 +1,126 @@
+<main class="dashboard analytics-page">
+  <div class="dashboard-header">
+    <div>
+      <h1 class="dashboard-title">Analytics</h1>
+      <p class="dashboard-subtitle">Review portfolio performance, allocation, and income metrics</p>
+    </div>
+  </div>
+
+  <section class="stats-grid" aria-label="Portfolio analytics summary">
+    <article class="stat-card">
+      <div class="stat-card__topline">
+        <span class="metric-icon metric-icon--invested" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M12 3v18M6 7.5h9a3 3 0 0 1 0 6H9a3 3 0 0 0 0 6h9" />
+          </svg>
+        </span>
+        <h3 class="stat-card__label">Total Invested</h3>
+      </div>
+      <p class="stat-card__value">₹ <%= number_to_currency(@analytics[:total_invested], unit: "") %></p>
+      <p class="trend-badge trend-badge--neutral">Capital deployed</p>
+    </article>
+
+    <article class="stat-card stat-card--primary">
+      <div class="stat-card__topline">
+        <span class="metric-icon metric-icon--value" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 19V5M4 19h16M8 15l3-3 3 2 5-6" />
+          </svg>
+        </span>
+        <h3 class="stat-card__label">Current Value</h3>
+      </div>
+      <p class="stat-card__value">₹ <%= number_to_currency(@analytics[:current_value], unit: "") %></p>
+      <p class="trend-badge trend-badge--neutral">Portfolio value</p>
+    </article>
+
+    <article class="stat-card stat-card--accent">
+      <div class="stat-card__topline">
+        <span class="metric-icon metric-icon--returns" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M5 17l5-5 4 4 5-8M15 8h4v4" />
+          </svg>
+        </span>
+        <h3 class="stat-card__label">Profit/Loss</h3>
+      </div>
+
+      <% if @analytics[:profit_loss].to_f >= 0 %>
+        <p class="stat-card__value amount-positive">+₹ <%= number_to_currency(@analytics[:profit_loss], unit: "") %></p>
+        <p class="trend-badge trend-badge--positive">Portfolio gain</p>
+      <% else %>
+        <p class="stat-card__value amount-negative">₹ <%= number_to_currency(@analytics[:profit_loss], unit: "") %></p>
+        <p class="trend-badge trend-badge--negative">Portfolio drawdown</p>
+      <% end %>
+    </article>
+
+    <article class="stat-card">
+      <div class="stat-card__topline">
+        <span class="metric-icon metric-icon--dividend" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 7h16M6 7v12h12V7M9 11h6M9 15h4M8 4h8v3H8z" />
+          </svg>
+        </span>
+        <h3 class="stat-card__label">Dividend Yield</h3>
+      </div>
+      <p class="stat-card__value"><%= number_to_percentage(@analytics[:dividend_yield], precision: 2) %></p>
+      <p class="trend-badge trend-badge--positive">Income yield</p>
+    </article>
+  </section>
+
+  <section class="analytics-sections-grid" aria-label="Future analytics modules">
+    <article class="dashboard-section analytics-panel">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 3v18M4 12h16M6 6l12 12M18 6L6 18" />
+            </svg>
+          </span>
+          Portfolio Allocation
+        </h2>
+      </div>
+      <p class="analytics-placeholder">Allocation chart will be added in PPT-101</p>
+    </article>
+
+    <article class="dashboard-section analytics-panel">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 19V5M4 19h16M8 15l3-4 4 3 4-7" />
+            </svg>
+          </span>
+          Portfolio Growth
+        </h2>
+      </div>
+      <p class="analytics-placeholder">Growth chart will be added in PPT-102</p>
+    </article>
+
+    <article class="dashboard-section analytics-panel">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M5 19h14M7 16l4-8 3 5 2-3 3 6" />
+            </svg>
+          </span>
+          CAGR
+        </h2>
+      </div>
+      <p class="analytics-placeholder">Not yet calculated</p>
+    </article>
+
+    <article class="dashboard-section analytics-panel">
+      <div class="section-header">
+        <h2 class="section-title">
+          <span class="section-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M6 6h12M6 12h12M6 18h12M9 6c4 4 4 8 0 12" />
+            </svg>
+          </span>
+          XIRR
+        </h2>
+      </div>
+      <p class="analytics-placeholder">Not yet calculated</p>
+    </article>
+  </section>
+</main>

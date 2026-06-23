@@ -15,5 +15,6 @@ Rails.application.routes.draw do
   resources :dividend_receipts, path: "dividends", as: "dividends"
   resources :dividend_receipts, path: "dividends", only: [:index, :new, :create]
 
+  get "analytics", to: "analytics#index"
   get "dashboard/index"
 end
