@@ -66,7 +66,7 @@
     </article>
   </section>
 
-  <section class="analytics-sections-grid" aria-label="Future analytics modules">
+  <section class="analytics-sections-grid" aria-label="Portfolio charts">
     <article class="chart-card analytics-panel">
       <div class="section-header">
         <h2 class="section-title">
@@ -92,7 +92,7 @@
       <% end %>
     </article>
 
-    <article class="dashboard-section analytics-panel">
+    <article class="chart-card analytics-panel">
       <div class="section-header">
         <h2 class="section-title">
           <span class="section-icon" aria-hidden="true">
@@ -103,35 +103,57 @@
           Portfolio Growth
         </h2>
       </div>
-      <p class="analytics-placeholder">Growth chart will be added in PPT-102</p>
+      <% if @monthly_investments.present? %>
+        <div class="chart-container">
+          <canvas
+            width="320"
+            height="320"
+            data-controller="portfolio-growth-chart"
+            data-portfolio-growth-chart-data-value='<%= @monthly_investments.to_json %>'>
+          </canvas>
+        </div>
+      <% else %>
+        <p class="analytics-placeholder">No growth data available.</p>
+      <% end %>
     </article>
+  </section>
 
-    <article class="dashboard-section analytics-panel">
-      <div class="section-header">
-        <h2 class="section-title">
-          <span class="section-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M5 19h14M7 16l4-8 3 5 2-3 3 6" />
-            </svg>
-          </span>
-          CAGR
-        </h2>
-      </div>
-      <p class="analytics-placeholder">Not yet calculated</p>
-    </article>
+  <section class="dashboard-section advanced-metrics-section" aria-label="Advanced metrics">
+    <div class="section-header">
+      <h2 class="section-title">
+        <span class="section-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M5 12h4v7H5zM10 5h4v14h-4zM15 9h4v10h-4z" />
+          </svg>
+        </span>
+        Advanced Metrics
+      </h2>
+    </div>
 
-    <article class="dashboard-section analytics-panel">
-      <div class="section-header">
-        <h2 class="section-title">
-          <span class="section-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M6 6h12M6 12h12M6 18h12M9 6c4 4 4 8 0 12" />
-            </svg>
-          </span>
-          XIRR
-        </h2>
-      </div>
-      <p class="analytics-placeholder">Not yet calculated</p>
-    </article>
+    <div class="advanced-metrics-grid">
+      <article class="advanced-metric-card">
+        <h3 class="advanced-metric-card__label">CAGR</h3>
+        <p class="advanced-metric-card__value">--</p>
+        <p class="advanced-metric-card__meta">Coming in PPT-95</p>
+      </article>
+
+      <article class="advanced-metric-card">
+        <h3 class="advanced-metric-card__label">XIRR</h3>
+        <p class="advanced-metric-card__value">--</p>
+        <p class="advanced-metric-card__meta">Coming in PPT-96</p>
+      </article>
+
+      <article class="advanced-metric-card">
+        <h3 class="advanced-metric-card__label">Portfolio Age</h3>
+        <p class="advanced-metric-card__value"><%= @portfolio_age %></p>
+        <p class="advanced-metric-card__meta">Since first transaction</p>
+      </article>
+
+      <article class="advanced-metric-card">
+        <h3 class="advanced-metric-card__label">Number of Holdings</h3>
+        <p class="advanced-metric-card__value"><%= @holdings_count %></p>
+        <p class="advanced-metric-card__meta">Active positions</p>
+      </article>
+    </div>
   </section>
 </main>
