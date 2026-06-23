@@ -92,16 +92,20 @@
       <% end %>
     </article>
 
+    <%# TODO: Replace with true portfolio growth chart after CAGR/XIRR implementation. %>
     <article class="chart-card analytics-panel">
       <div class="section-header">
-        <h2 class="section-title">
-          <span class="section-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M4 19V5M4 19h16M8 15l3-4 4 3 4-7" />
-            </svg>
-          </span>
-          Portfolio Growth
-        </h2>
+        <div>
+          <h2 class="section-title">
+            <span class="section-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M4 19V5M4 19h16M8 15l3-4 4 3 4-7" />
+              </svg>
+            </span>
+            Investment Activity
+          </h2>
+          <p class="section-subtitle">Monthly capital deployed into the portfolio</p>
+        </div>
       </div>
       <% if @monthly_investments.present? %>
         <div class="chart-container">
@@ -113,7 +117,7 @@
           </canvas>
         </div>
       <% else %>
-        <p class="analytics-placeholder">No growth data available.</p>
+        <p class="analytics-placeholder">No investment activity data available.</p>
       <% end %>
     </article>
   </section>

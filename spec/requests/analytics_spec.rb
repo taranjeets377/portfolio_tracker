@@ -39,10 +39,12 @@ RSpec.describe "Analytics", type: :request do
       expect(response.body).to include("Analytics")
       expect(response.body).to include("Total Invested")
       expect(response.body).to include("Portfolio Allocation")
-      expect(response.body).to include("Portfolio Growth")
+      expect(response.body).to include("Investment Activity")
+      expect(response.body).to include("Monthly capital deployed into the portfolio")
       expect(response.body).to include("Advanced Metrics")
       expect(response.body).to include("Coming in PPT-95")
       expect(response.body).to include("Coming in PPT-96")
+      expect(response.body).not_to include("Portfolio Growth")
       expect(response.body).not_to include("Not yet calculated")
     end
 
@@ -121,17 +123,17 @@ RSpec.describe "Analytics", type: :request do
       expect(response.body).to include("3")
     end
 
-    it "displays an empty growth message when no monthly investment data exists" do
+    it "displays an empty investment activity message when no monthly investment data exists" do
       allow(Portfolio::MonthlyInvestmentQuery).to receive(:new).with(user).and_return(monthly_investment_query)
       sign_in user
 
       get analytics_path
 
-      expect(response.body).to include("No growth data available.")
+      expect(response.body).to include("No investment activity data available.")
       expect(response.body).not_to include("portfolio-growth-chart")
     end
 
-    it "renders the portfolio growth chart when monthly investment data exists" do
+    it "renders the investment activity chart when monthly investment data exists" do
       growth_data = [
         { month: "Jan 2026", total_invested: 1_000.0 },
         { month: "Feb 2026", total_invested: 1_500.0 }
@@ -148,7 +150,7 @@ RSpec.describe "Analytics", type: :request do
       expect(response.body).to include("Feb 2026")
       expect(response.body).to include("1000.0")
       expect(response.body).to include("1500.0")
-      expect(response.body).not_to include("No growth data available.")
+      expect(response.body).not_to include("No investment activity data available.")
     end
 
     it "displays portfolio age from the oldest transaction" do

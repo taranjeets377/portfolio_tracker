@@ -434,6 +434,13 @@ body {
   line-height: 1.3;
 }
 
+.section-subtitle {
+  margin: var(--space-2) 0 0 48px;
+  color: var(--color-muted);
+  font-size: 13px;
+  font-weight: 750;
+}
+
 .section-icon {
   width: 36px;
   height: 36px;

@@ -27,7 +27,7 @@ export default class extends Controller {
       data: {
         labels: labels,
         datasets: [{
-          label: "Total Invested (₹)",
+          label: "Monthly Capital Deployed (₹)",
           data: values,
           borderColor: olive,
           backgroundColor: oliveFill,
@@ -42,15 +42,6 @@ export default class extends Controller {
       options: {
         maintainAspectRatio: false,
         plugins: {
-          title: {
-            display: true,
-            text: "Portfolio Growth",
-            color: "#f4f7ef",
-            font: {
-              size: 16,
-              weight: "bold"
-            }
-          },
           legend: {
             labels: {
               color: mutedText
