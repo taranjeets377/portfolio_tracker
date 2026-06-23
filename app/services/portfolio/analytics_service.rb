@@ -10,7 +10,7 @@ module Portfolio
         current_value: totals[:total_current],
         profit_loss: totals[:total_profit_loss],
         allocation: allocation,
-        dividend_yield: nil,
+        dividend_yield: dividend_yield,
         cagr: nil,
         xirr: nil
       }
@@ -42,6 +42,16 @@ module Portfolio
 
     def holdings
       @holdings ||= summary_query.call
+    end
+
+    def dividend_yield
+      current_portfolio_value = totals[:total_current].to_f
+      return 0 if current_portfolio_value.zero?
+
+      total_dividend_received = user.total_dividend_received.to_f
+      return 0 if total_dividend_received.zero?
+
+      ((total_dividend_received / current_portfolio_value) * 100).round(2)
     end
 
     def summary_query

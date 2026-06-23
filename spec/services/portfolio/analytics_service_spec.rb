@@ -21,7 +21,6 @@ RSpec.describe Portfolio::AnalyticsService do
     it "returns placeholders for analytics that are not implemented yet" do
       result = described_class.new(user).call
 
-      expect(result[:dividend_yield]).to be_nil
       expect(result[:cagr]).to be_nil
       expect(result[:xirr]).to be_nil
     end
@@ -89,6 +88,63 @@ RSpec.describe Portfolio::AnalyticsService do
           }
         ]
       )
+    end
+
+    it "returns zero dividend yield when no dividends exist" do
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 1_000.0,
+          total_current: 1_000.0,
+          total_profit_loss: 0.0
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:dividend_yield]).to eq(0)
+    end
+
+    it "returns zero dividend yield when current portfolio value is zero" do
+      create(:dividend_receipt, user: user, shares: 10, amount_per_share: 5)
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 0.0,
+          total_current: 0.0,
+          total_profit_loss: 0.0
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:dividend_yield]).to eq(0)
+    end
+
+    it "calculates dividend yield from total dividends received and current portfolio value" do
+      create(:dividend_receipt, user: user, shares: 10, amount_per_share: 5)
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 900.0,
+          total_current: 1_200.0,
+          total_profit_loss: 300.0
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+      expect(user).to receive(:total_dividend_received).and_call_original
+
+      result = described_class.new(user).call
+
+      expect(result[:dividend_yield]).to eq(4.17)
     end
   end
 end
