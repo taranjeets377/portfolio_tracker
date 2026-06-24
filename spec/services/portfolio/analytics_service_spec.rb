@@ -18,10 +18,9 @@ RSpec.describe Portfolio::AnalyticsService do
       )
     end
 
-    it "returns placeholders for analytics that are not implemented yet" do
+    it "returns nil for analytics that are not implemented yet" do
       result = described_class.new(user).call
 
-      expect(result[:cagr]).to be_nil
       expect(result[:xirr]).to be_nil
     end
 
@@ -145,6 +144,124 @@ RSpec.describe Portfolio::AnalyticsService do
       result = described_class.new(user).call
 
       expect(result[:dividend_yield]).to eq(4.17)
+    end
+
+    it "returns nil CAGR when there are no transactions" do
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 1_000.0,
+          total_current: 1_200.0,
+          total_profit_loss: 200.0
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:cagr]).to be_nil
+    end
+
+    it "calculates CAGR for one year growth" do
+      allow(Date).to receive(:current).and_return(Date.new(2026, 6, 24))
+      create(:stock_transaction, user: user, transaction_date: Date.new(2025, 6, 24))
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 1_000.0,
+          total_current: 1_144.7,
+          total_profit_loss: 144.7
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:cagr]).to eq(14.48)
+    end
+
+    it "calculates CAGR for multi-year growth" do
+      allow(Date).to receive(:current).and_return(Date.new(2026, 6, 24))
+      create(:stock_transaction, user: user, transaction_date: Date.new(2023, 6, 24))
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 1_000.0,
+          total_current: 1_728.0,
+          total_profit_loss: 728.0
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:cagr]).to eq(20.0)
+    end
+
+    it "returns nil CAGR when total invested value is zero" do
+      allow(Date).to receive(:current).and_return(Date.new(2026, 6, 24))
+      create(:stock_transaction, user: user, transaction_date: Date.new(2025, 6, 24))
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 0.0,
+          total_current: 1_000.0,
+          total_profit_loss: 1_000.0
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:cagr]).to be_nil
+    end
+
+    it "returns nil CAGR when current value is zero" do
+      allow(Date).to receive(:current).and_return(Date.new(2026, 6, 24))
+      create(:stock_transaction, user: user, transaction_date: Date.new(2025, 6, 24))
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 1_000.0,
+          total_current: 0.0,
+          total_profit_loss: -1_000.0
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:cagr]).to be_nil
+    end
+
+    it "returns nil CAGR when portfolio age is zero years" do
+      allow(Date).to receive(:current).and_return(Date.new(2026, 6, 24))
+      create(:stock_transaction, user: user, transaction_date: Date.new(2026, 6, 24))
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 1_000.0,
+          total_current: 1_100.0,
+          total_profit_loss: 100.0
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:cagr]).to be_nil
     end
   end
 end

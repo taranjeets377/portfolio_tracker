@@ -137,8 +137,14 @@
     <div class="advanced-metrics-grid">
       <article class="advanced-metric-card">
         <h3 class="advanced-metric-card__label">CAGR</h3>
-        <p class="advanced-metric-card__value">--</p>
-        <p class="advanced-metric-card__meta">Coming in PPT-95</p>
+        <% if @analytics[:cagr].nil? %>
+          <p class="advanced-metric-card__value">--</p>
+        <% elsif @analytics[:cagr].to_f >= 0 %>
+          <p class="advanced-metric-card__value amount-positive"><%= number_to_percentage(@analytics[:cagr], precision: 2) %></p>
+        <% else %>
+          <p class="advanced-metric-card__value amount-negative"><%= number_to_percentage(@analytics[:cagr], precision: 2) %></p>
+        <% end %>
+        <p class="advanced-metric-card__meta">Compound annual growth rate</p>
       </article>
 
       <article class="advanced-metric-card">

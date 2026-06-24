@@ -42,8 +42,9 @@ RSpec.describe "Analytics", type: :request do
       expect(response.body).to include("Investment Activity")
       expect(response.body).to include("Monthly capital deployed into the portfolio")
       expect(response.body).to include("Advanced Metrics")
-      expect(response.body).to include("Coming in PPT-95")
       expect(response.body).to include("Coming in PPT-96")
+      expect(response.body).to include("Compound annual growth rate")
+      expect(response.body).not_to include("Coming in PPT-95")
       expect(response.body).not_to include("Portfolio Growth")
       expect(response.body).not_to include("Not yet calculated")
     end
@@ -162,6 +163,30 @@ RSpec.describe "Analytics", type: :request do
 
       expect(response.body).to include("Portfolio Age")
       expect(response.body).to include("8 Months")
+    end
+
+    it "displays positive CAGR in green" do
+      allow(Portfolio::AnalyticsService).to receive(:new)
+        .with(user)
+        .and_return(instance_double(Portfolio::AnalyticsService, call: analytics_payload.merge(cagr: 14.47)))
+      sign_in user
+
+      get analytics_path
+
+      expect(response.body).to include("14.47%")
+      expect(response.body).to include("advanced-metric-card__value amount-positive")
+    end
+
+    it "displays negative CAGR in red" do
+      allow(Portfolio::AnalyticsService).to receive(:new)
+        .with(user)
+        .and_return(instance_double(Portfolio::AnalyticsService, call: analytics_payload.merge(cagr: -8.25)))
+      sign_in user
+
+      get analytics_path
+
+      expect(response.body).to include("-8.25%")
+      expect(response.body).to include("advanced-metric-card__value amount-negative")
     end
   end
 end
