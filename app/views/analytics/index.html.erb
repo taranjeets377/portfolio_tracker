@@ -149,8 +149,14 @@
 
       <article class="advanced-metric-card">
         <h3 class="advanced-metric-card__label">XIRR</h3>
-        <p class="advanced-metric-card__value">--</p>
-        <p class="advanced-metric-card__meta">Coming in PPT-96</p>
+        <% if @analytics[:xirr].nil? %>
+          <p class="advanced-metric-card__value">--</p>
+        <% elsif @analytics[:xirr].to_f >= 0 %>
+          <p class="advanced-metric-card__value amount-positive"><%= number_to_percentage(@analytics[:xirr], precision: 2) %></p>
+        <% else %>
+          <p class="advanced-metric-card__value amount-negative"><%= number_to_percentage(@analytics[:xirr], precision: 2) %></p>
+        <% end %>
+        <p class="advanced-metric-card__meta">Money-weighted annual return</p>
       </article>
 
       <article class="advanced-metric-card">

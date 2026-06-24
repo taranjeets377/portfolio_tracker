@@ -18,7 +18,7 @@ RSpec.describe Portfolio::AnalyticsService do
       )
     end
 
-    it "returns nil for analytics that are not implemented yet" do
+    it "returns nil XIRR when there are no transactions" do
       result = described_class.new(user).call
 
       expect(result[:xirr]).to be_nil
@@ -262,6 +262,274 @@ RSpec.describe Portfolio::AnalyticsService do
       result = described_class.new(user).call
 
       expect(result[:cagr]).to be_nil
+    end
+
+    it "calculates XIRR for a realistic gain scenario" do
+      allow(Date).to receive(:current).and_return(Date.new(2024, 1, 1))
+      create(
+        :stock_transaction,
+        user: user,
+        transaction_type: :buy,
+        quantity: 100,
+        price: 100,
+        transaction_date: Date.new(2023, 1, 1)
+      )
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 10_000.0,
+          total_current: 12_000.0,
+          total_profit_loss: 2_000.0
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:xirr]).to be_within(0.05).of(20.0)
+    end
+
+    it "calculates XIRR for a loss scenario" do
+      allow(Date).to receive(:current).and_return(Date.new(2024, 1, 1))
+      create(
+        :stock_transaction,
+        user: user,
+        transaction_type: :buy,
+        quantity: 100,
+        price: 100,
+        transaction_date: Date.new(2023, 1, 1)
+      )
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 10_000.0,
+          total_current: 8_000.0,
+          total_profit_loss: -2_000.0
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:xirr]).to be_within(0.05).of(-20.0)
+    end
+
+    it "calculates XIRR for multiple investments" do
+      current_date = Date.new(2026, 6, 24)
+      allow(Date).to receive(:current).and_return(current_date)
+
+      create(
+        :stock_transaction,
+        user: user,
+        transaction_type: :buy,
+        quantity: 10,
+        price: 100,
+        transaction_date: Date.new(2025, 6, 24)
+      )
+      second_investment_date = Date.new(2025, 12, 24)
+      create(
+        :stock_transaction,
+        user: user,
+        transaction_type: :buy,
+        quantity: 20,
+        price: 50,
+        transaction_date: second_investment_date
+      )
+
+      target_rate = 0.10
+      total_current = 1_000.0 * (1 + target_rate) + (1_000.0 * ((1 + target_rate)**((current_date - second_investment_date).to_f / 365.25)))
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 2_000.0,
+          total_current: total_current.round(2),
+          total_profit_loss: (total_current - 2_000.0).round(2)
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:xirr]).to be_within(0.01).of(10.0)
+    end
+
+    it "includes dividend receipts in the XIRR cash flows" do
+      current_date = Date.new(2026, 6, 24)
+      allow(Date).to receive(:current).and_return(current_date)
+
+      create(
+        :stock_transaction,
+        user: user,
+        transaction_type: :buy,
+        quantity: 10,
+        price: 100,
+        transaction_date: Date.new(2025, 6, 24)
+      )
+      dividend_date = Date.new(2025, 12, 24)
+      create(
+        :dividend_receipt,
+        user: user,
+        shares: 10,
+        amount_per_share: 10,
+        received_on: dividend_date
+      )
+
+      target_rate = 0.15
+      total_current = 1_000.0 * (1 + target_rate) - (100.0 * ((1 + target_rate)**((current_date - dividend_date).to_f / 365.25)))
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 1_000.0,
+          total_current: total_current.round(2),
+          total_profit_loss: (total_current - 1_000.0).round(2)
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:xirr]).to be_within(0.01).of(15.0)
+    end
+
+    it "returns nil XIRR when there are no positive cash flows" do
+      allow(Date).to receive(:current).and_return(Date.new(2026, 6, 24))
+      create(
+        :stock_transaction,
+        user: user,
+        transaction_type: :buy,
+        quantity: 10,
+        price: 100,
+        transaction_date: Date.new(2025, 6, 24)
+      )
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 1_000.0,
+          total_current: 0.0,
+          total_profit_loss: -1_000.0
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:xirr]).to be_nil
+    end
+
+    it "returns nil XIRR when there are no negative cash flows" do
+      allow(Date).to receive(:current).and_return(Date.new(2026, 6, 24))
+      create(
+        :stock_transaction,
+        user: user,
+        transaction_type: :sell,
+        quantity: 10,
+        price: 100,
+        transaction_date: Date.new(2025, 6, 24)
+      )
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 0.0,
+          total_current: 500.0,
+          total_profit_loss: 500.0
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:xirr]).to be_nil
+    end
+
+    it "changes XIRR when dividend receipts are present" do
+      current_date = Date.new(2026, 6, 24)
+      allow(Date).to receive(:current).and_return(current_date)
+      create(
+        :stock_transaction,
+        user: user,
+        transaction_type: :buy,
+        quantity: 10,
+        price: 100,
+        transaction_date: Date.new(2025, 6, 24)
+      )
+
+      summary_query_without_dividend = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 1_000.0,
+          total_current: 1_100.0,
+          total_profit_loss: 100.0
+        },
+        call: []
+      )
+
+      allow(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query_without_dividend)
+      xirr_without_dividend = described_class.new(user).call[:xirr]
+
+      create(
+        :dividend_receipt,
+        user: user,
+        shares: 10,
+        amount_per_share: 10,
+        received_on: Date.new(2025, 12, 24)
+      )
+
+      summary_query_with_dividend = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 1_000.0,
+          total_current: 1_100.0,
+          total_profit_loss: 100.0
+        },
+        call: []
+      )
+
+      allow(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query_with_dividend)
+      xirr_with_dividend = described_class.new(user).call[:xirr]
+
+      expect(xirr_without_dividend).to be_within(0.01).of(10.0)
+      expect(xirr_with_dividend).to be > xirr_without_dividend
+      expect(xirr_with_dividend).not_to eq(xirr_without_dividend)
+    end
+
+    it "returns nil XIRR when all cash flows occur on the same day" do
+      current_date = Date.new(2026, 6, 24)
+      allow(Date).to receive(:current).and_return(current_date)
+      create(
+        :stock_transaction,
+        user: user,
+        transaction_type: :buy,
+        quantity: 10,
+        price: 100,
+        transaction_date: current_date
+      )
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 1_000.0,
+          total_current: 1_100.0,
+          total_profit_loss: 100.0
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:xirr]).to be_nil
     end
   end
 end
