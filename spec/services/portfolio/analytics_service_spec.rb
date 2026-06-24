@@ -504,6 +504,41 @@ RSpec.describe Portfolio::AnalyticsService do
       expect(xirr_with_dividend).not_to eq(xirr_without_dividend)
     end
 
+    it "calculates XIRR for a buy and sell transaction" do
+      allow(Date).to receive(:current).and_return(Date.new(2024, 1, 1))
+      create(
+        :stock_transaction,
+        user: user,
+        transaction_type: :buy,
+        quantity: 10,
+        price: 100,
+        transaction_date: Date.new(2023, 1, 1)
+      )
+      create(
+        :stock_transaction,
+        user: user,
+        transaction_type: :sell,
+        quantity: 10,
+        price: 120,
+        transaction_date: Date.new(2024, 1, 1)
+      )
+      summary_query = instance_double(
+        Portfolio::SummaryQuery,
+        totals: {
+          total_invested: 1_000.0,
+          total_current: 0.0,
+          total_profit_loss: 200.0
+        },
+        call: []
+      )
+
+      expect(Portfolio::SummaryQuery).to receive(:new).with(user).and_return(summary_query)
+
+      result = described_class.new(user).call
+
+      expect(result[:xirr]).to be_within(0.05).of(20.0)
+    end
+
     it "returns nil XIRR when all cash flows occur on the same day" do
       current_date = Date.new(2026, 6, 24)
       allow(Date).to receive(:current).and_return(current_date)

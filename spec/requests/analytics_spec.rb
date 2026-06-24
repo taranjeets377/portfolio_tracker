@@ -31,6 +31,12 @@ RSpec.describe "Analytics", type: :request do
       expect(response).to have_http_status(:success)
     end
 
+    it "redirects unauthenticated users to sign in" do
+      get analytics_path
+
+      expect(response).to redirect_to(new_user_session_path)
+    end
+
     it "loads successfully" do
       sign_in user
 
@@ -164,6 +170,64 @@ RSpec.describe "Analytics", type: :request do
 
       expect(response.body).to include("Portfolio Age")
       expect(response.body).to include("8 Months")
+    end
+
+    it "displays positive profit/loss in green" do
+      allow(Portfolio::AnalyticsService).to receive(:new)
+        .with(user)
+        .and_return(instance_double(Portfolio::AnalyticsService, call: analytics_payload.merge(profit_loss: 500.0)))
+      sign_in user
+
+      get analytics_path
+
+      expect(response.body).to include("amount-positive")
+      expect(response.body).to include("Portfolio gain")
+    end
+
+    it "displays negative profit/loss in red" do
+      allow(Portfolio::AnalyticsService).to receive(:new)
+        .with(user)
+        .and_return(instance_double(Portfolio::AnalyticsService, call: analytics_payload.merge(profit_loss: -200.0)))
+      sign_in user
+
+      get analytics_path
+
+      expect(response.body).to include("amount-negative")
+      expect(response.body).to include("Portfolio drawdown")
+    end
+
+    it "displays nil CAGR as a placeholder" do
+      allow(Portfolio::AnalyticsService).to receive(:new)
+        .with(user)
+        .and_return(instance_double(Portfolio::AnalyticsService, call: analytics_payload.merge(cagr: nil)))
+      sign_in user
+
+      get analytics_path
+
+      expect(response.body).to include("advanced-metric-card__value\">--")
+    end
+
+    it "displays nil XIRR as a placeholder" do
+      allow(Portfolio::AnalyticsService).to receive(:new)
+        .with(user)
+        .and_return(instance_double(Portfolio::AnalyticsService, call: analytics_payload.merge(xirr: nil)))
+      sign_in user
+
+      get analytics_path
+
+      expect(response.body).to include("advanced-metric-card__value\">--")
+    end
+
+    it "displays dividend yield on the analytics page" do
+      allow(Portfolio::AnalyticsService).to receive(:new)
+        .with(user)
+        .and_return(instance_double(Portfolio::AnalyticsService, call: analytics_payload.merge(dividend_yield: 3.75)))
+      sign_in user
+
+      get analytics_path
+
+      expect(response.body).to include("3.75%")
+      expect(response.body).to include("Income yield")
     end
 
     it "displays positive CAGR in green" do
